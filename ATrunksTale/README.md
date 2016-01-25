@@ -1,5 +1,7 @@
 # A Trunk's Tale
 
+A Trunk's Tale is a story about a young elephant learning how to use his trunk as he searches for his mom in the Saharan Desert.
+
 Install Love
 
 To run:<br>
@@ -7,4 +9,4 @@ To run:<br>
   2. Windows : drag the folder with `main.lua` in top level into Love
 
 To "play":<br>
-  Left and right arrows to move
+  Left and right arrows OR A and D to move, mouse to move trunk.
