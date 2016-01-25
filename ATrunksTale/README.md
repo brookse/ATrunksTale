@@ -7,4 +7,4 @@ To run:<br>
   2. Windows : drag the folder with `main.lua` in top level into Love
 
 To "play":<br>
-  Left and right arrows to move
+  Left and right OR a and d arrows to move
