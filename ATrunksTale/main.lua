@@ -5,9 +5,22 @@ function love.load(arg)
   love.graphics.setBackgroundColor(255,255,255)
 
   babbySprites = love.graphics.newImage('ElephantSprite.png')
+
+  ground = love.graphics.newImage('Ground.png')
+  groundPool = love.graphics.newImage('GroundPool.png')
+  backGrass = love.graphics.newImage('BackGrass.png')
+  backGrassTree = love.graphics.newImage('BackGrassTree.png')
+  background = love.graphics.newImage('CloudBackground.png')
+
+  giraffeSprites = love.graphics.newImage('GiraffeSprite.png')
+
+  grass = love.graphics.newImage('Grass.png')
+  grassTuft = love.graphics.newImage('GrassTuft.png')
+
   local bs = anim8.newGrid(85, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 0, 0)
   local bcs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 60, 0)
   local bgs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 120, 0)
+  local g = anim8.newGrid(170, 220, giraffeSprites:getWidth(), giraffeSprites:getHeight(), 0, 0, 0)
 
   player = {
     spritesheet = babbySprites,
@@ -17,6 +30,7 @@ function love.load(arg)
   --  height = ,
     speed = 200,
     facing = 'right',
+    grabbed = 'false',
     animations = {
       idleLeft = anim8.newAnimation(bs(8,1, 7,1), .5),
       idleRight = anim8.newAnimation(bs(1,1, 2,1), .5),
@@ -26,41 +40,32 @@ function love.load(arg)
       idleRightCarry = anim8.newAnimation(bcs(1,1, 2,1), .5),
       walkLeftCarry = anim8.newAnimation(bcs(7,1, 6,1, 7,1, 5,1), .25),
       walkRightCarry = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
-      grabLeft = anim8.newAnimation(bgs(1,1, 2,1, 3,1), .25),
-      grabRight = anim8.newAnimation(bgs(8,1, 7,1, 6,1), .25),
+      grabLeft = anim8.newAnimation(bgs(1,1, 2,1, 3,1, 4,1), .25, 'pauseAtEnd'),
+      grabRight = anim8.newAnimation(bgs(8,1, 7,1, 6,1, 5,1), .25, 'pauseAtEnd'),
     },
-    trunkLocations = {
-      idleLeft = {
-        x = 8,
-        y = 32
-      },
-      idleRight = {
-        x = 77,
-        y = 32
-      },
-      walkLeft = {
-        x = 6,
-        y = 25
-      },
-      walkRight = {
-        x = 79,
-        y = 25
-      }
-    }
+    carrying = 'nothing'
   }
   player.animation = player.animations.idleRight
-  player.trunkLocation = player.trunkLocations.idleRight
 
---[==[   tuft = {
-    spritesheet = tuftSprites,
-    x = 300,
-    y = 500,
-    animations  = {
-      tuft = anim8.newAnimation(g(), 1),
-      bundle = anim8.newAnimation(g(), 1)
+  giraffe = {
+    spritesheet = giraffeSprites,
+    x = 575,
+    y = 335,
+    animations = {
+      idle = anim8.newAnimation(g(1,1, 2,1, 1,1, 3,1), .25),
+      random = anim8.newAnimation(g(4,1, 1,1), 1)
     }
   }
---]==]
+  giraffe.animation = giraffe.animations.idle
+
+  tuft = {
+    spritesheet = grassTuft,
+    x = 375,
+    y = 515,
+    width = 30,
+    height = 40
+  }
+
 end
 
 function love.update(dt)
@@ -69,7 +74,6 @@ function love.update(dt)
       if love.mouse.isDown('1') then
         player.animation = player.animations.walkLeftCarry
       else
-        player.trunkLocation = player.trunkLocations.walkLeft
         player.animation = player.animations.walkLeft
       end
       player.x = player.x - (player.speed*dt)
@@ -81,7 +85,6 @@ function love.update(dt)
         player.animation = player.animations.walkRightCarry
       else
         player.animation = player.animations.walkRight
-        player.trunkLocation = player.trunkLocations.walkRight
       end
       player.x = player.x + (player.speed*dt)
       player.facing = 'right'
@@ -105,6 +108,7 @@ function love.update(dt)
     end
   end
   player.animation:update(dt)
+  giraffe.animation:update(dt)
 end
 
 function love.keyreleased(key)
@@ -113,14 +117,12 @@ function love.keyreleased(key)
       player.animation = player.animations.idleLeftCarry
     else
       player.animation = player.animations.idleLeft
-      player.trunkLocation = player.trunkLocations.idleLeft
     end
   elseif key == 'right' or key == 'd' then
     if love.mouse.isDown('1') then
       player.animation = player.animation.idleRightCarry
     else
       player.animation = player.animations.idleRight
-      player.trunkLocation = player.trunkLocations.idleRight
     end
   elseif key == 'space' then
     -- switch sprite back
@@ -128,42 +130,22 @@ function love.keyreleased(key)
   end
 end
 
---[=[
 function love.mousepressed(x, y, button, istouch)
   if button == 1 then
-    if player.facing == 'left' then
-      if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
-        -- walking, show left walk grab
-        player.animation = player.animations.walkLeftCarry
-      else
-        -- idling left
-        player.animation = player.animations.idleLeftCarry
-      end
-    elseif player.facing == 'right' then
-      if love.keyboard.isDown('right') or love.keyboard.isDown('d') then
-        -- walking, show right walk grab
-        player.animation = player.animations.walkRightCarry
-      else
-        -- idling right
-        player.animation = player.animations.idleRightCarry
-      end
-    end
-  end
-
---[==[  if button == '1'
-    and x > tuft.x and x < tuft.x + tuft.width
+    -- if click is within space of object
+    if x > tuft.x and x < tuft.x + tuft.width
     and y > tuft.y and y < tuft.y + tuft.height
-    and math.abs(player.x - tuft.x) < 10        -- within grabbing distance
-  then
-    if player.facing == 'left' then
-      -- switch to left holding
-    elseif player.facing == 'right' then
-      -- switch to right holding
+    then
+      if player.facing == 'left' then
+        -- do grab animation
+        player.animation = player.animation.grabLeft
+        -- attach object to player
+      elseif player.facing == 'right' then
+        player.animation = player.animation.grabRight
+      end
     end
   end
---]==]
 end
---]=]
 
 function love.mousereleased(x, y, button, istouch)
   if button == 1 then
@@ -188,21 +170,15 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.draw(dt)
+  love.graphics.print({{0, 0, 0, 255}, "< and > OR a and d to move, lmb to carry"}, 100, 650, 0, 2, 2)
+  love.graphics.draw(background, 0, 200)
+  love.graphics.draw(backGrass, 0, 400)
+  love.graphics.draw(backGrass, backGrass:getWidth(), 400)
   player.animation:draw(player.spritesheet, player.x, player.y)
+  giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
+  love.graphics.draw(ground, 0, 540)
+  love.graphics.draw(groundPool, ground:getWidth(), 540)
+  love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 540)
+  love.graphics.draw(tuft.spritesheet, tuft.x, tuft.y)
 
-  love.graphics.print({{0, 0, 0, 255}, "< and > OR a and d to move, lmb to carry"}, 100, 100, 0, 2, 2)
-
---[==[  local mx, my = love.mouse.getPosition()
-  w = love.graphics.getWidth() / 2
-  h = love.graphics.getHeight() / 2
-
-  trunkX = player.x + player.trunkLocation.x
-  trunkY = player.y + player.trunkLocation.y
-
-  love.graphics.setColor(255, 0, 0)
-  love.graphics.setLineWidth(5)
-  love.graphics.setLineStyle("rough")
-  love.graphics.line(trunkX, trunkY, mx, my)
-  love.graphics.setColor(255,255,255)
---]==]
 end
