@@ -9,4 +9,4 @@ To run:<br>
   2. Windows : drag the folder with `main.lua` in top level into Love
 
 To "play":<br>
-  Left and right arrows OR A and D to move, mouse to move trunk.
+  Left and right arrows OR A and D to move, left mouse button to carry
