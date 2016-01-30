@@ -9,4 +9,4 @@ To run:<br>
   2. Windows : `"C:\Program Files\LOVE\love.exe" "ATrunksTale"` or wherever your installed LOVE exe and A Trunk's Tale program files are located.
 
 To "play":<br>
-  Left and right arrows OR A and D to move, left mouse button to carry
+  Left and right arrows OR A and D to move, left mouse button to sprint, right mouse button to interact

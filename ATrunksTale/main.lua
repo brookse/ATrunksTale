@@ -13,6 +13,8 @@ function love.load(arg)
   background = love.graphics.newImage('CloudBackground.png')
 
   giraffeSprites = love.graphics.newImage('GiraffeSprite.png')
+  giraffeText = love.graphics.newImage('GiraffeText.png')
+  giraffeHeart = love.graphics.newImage('Heart.png')
 
   grass = love.graphics.newImage('Grass.png')
   grassTuft = love.graphics.newImage('GrassTuft.png')
@@ -21,6 +23,9 @@ function love.load(arg)
   local bcs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 60, 0)
   local bgs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 120, 0)
   local g = anim8.newGrid(170, 220, giraffeSprites:getWidth(), giraffeSprites:getHeight(), 0, 0, 0)
+
+  local r = anim8.newGrid(70, 70, giraffeText:getWidth(), giraffeText:getHeight(), 0, 0, 0)
+  local h = anim8.newGrid(65, 70, giraffeHeart:getWidth(), giraffeHeart:getHeight(), 0, 0, 0)
 
   local t = anim8.newGrid(30, 40, grassTuft:getWidth(), grassTuft:getHeight(), 0, 0, 0)
 
@@ -53,10 +58,13 @@ function love.load(arg)
     spritesheet = giraffeSprites,
     x = 575,
     y = 335,
+    width = 170,
+    height = 220,
     animations = {
       idle = anim8.newAnimation(g(1,1, 2,1, 1,1, 3,1), .25),
       random = anim8.newAnimation(g(4,1, 1,1), 1)
-    }
+    },
+    love = 0
   }
   giraffe.animation = giraffe.animations.idle
 
@@ -73,6 +81,28 @@ function love.load(arg)
   }
   tuft.animation = tuft.animations.visible
 
+  text = {
+    spritesheet = giraffeText,
+    animations = {
+      visible = anim8.newAnimation(r(1,1), 1),
+      invisible = anim8.newAnimation(r(2,1), 1)
+    },
+    x = 500,
+    y = 250
+  }
+  text.animation = text.animations.invisible
+
+  heart = {
+    spritesheet = giraffeHeart,
+    animations = {
+      visible = anim8.newAnimation(h(2,1, 1,1), .5),
+      invisible = anim8.newAnimation(h(3,1), 1)
+    },
+    x = 575,
+    y = 250
+  }
+  heart.animation = heart.animations.invisible
+
 end
 
 function love.update(dt)
@@ -80,8 +110,10 @@ function love.update(dt)
     if player.x > 0 then
       if love.mouse.isDown('1') then
         player.animation = player.animations.walkLeftCarry
+        player.speed = 300
       else
         player.animation = player.animations.walkLeft
+        player.speed = 200
       end
       player.x = player.x - (player.speed*dt)
       player.facing = 'left'
@@ -90,8 +122,10 @@ function love.update(dt)
     if player.x < (love.graphics.getWidth() - 120) then
       if love.mouse.isDown('1') then
         player.animation = player.animations.walkRightCarry
+        player.speed = 300
       else
         player.animation = player.animations.walkRight
+        player.speed = 200
       end
       player.x = player.x + (player.speed*dt)
       player.facing = 'right'
@@ -105,31 +139,38 @@ function love.update(dt)
         if not love.keyboard.isDown('left') or not love.keyboard.isDown('a') then
           -- idling left
           player.animation = player.animations.idleLeftCarry
+          player.speed = 300
         end
       elseif player.facing == 'right' then
         if not love.keyboard.isDown('right') or not love.keyboard.isDown('d') then
           -- idling right
           player.animation = player.animations.idleRightCarry
+          player.speed = 300
         end
       end
     end
   end
   player.animation:update(dt)
   giraffe.animation:update(dt)
+  heart.animation:update(dt)
 end
 
 function love.keyreleased(key)
   if key == 'left' or key == 'a' then
     if love.mouse.isDown('1') then
       player.animation = player.animations.idleLeftCarry
+      player.speed = 200
     else
       player.animation = player.animations.idleLeft
+      player.speed = 200
     end
   elseif key == 'right' or key == 'd' then
     if love.mouse.isDown('1') then
       player.animation = player.animation.idleRightCarry
+      player.speed = 200
     else
       player.animation = player.animations.idleRight
+      player.speed = 200
     end
   elseif key == 'space' then
     -- switch sprite back
@@ -155,7 +196,16 @@ function love.mousepressed(x, y, button, istouch)
         player.animation = player.animations.grabRight
 
         tuft.animation = tuft.animations.invisible
+        text.animation = text.animations.invisible
+        heart.animation = heart.animations.visible
       end
+    end
+
+    if x > giraffe.x and x < giraffe.x + giraffe.width
+    and y > giraffe.y and y < giraffe.y + giraffe.height
+    and math.abs(giraffe.x - (player.x)) < 30
+    then
+      text.animation = text.animations.visible
     end
   end
 end
@@ -166,17 +216,21 @@ function love.mousereleased(x, y, button, istouch)
       if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
         -- walking, show left walk grab
         player.animation = player.animations.walkLeft
+        player.speed = 200
       else
         -- idling left
         player.animation = player.animations.idleLeft
+        player.speed = 200
       end
     elseif player.facing == 'right' then
       if love.keyboard.isDown('right') or love.keyboard.isDown('d') then
         -- walking, show left walk grab
         player.animation = player.animations.walkRight
+        player.speed = 200
       else
         -- idling left
         player.animation = player.animations.idleRight
+        player.speed = 200
       end
     end
   end
@@ -184,7 +238,7 @@ end
 
 function love.draw(dt)
   love.graphics.draw(background, 0, 200)
-  love.graphics.print({{0, 0, 0, 255}, "< and > OR a and d to move, lmb to carry"}, 100, 650, 0, 2, 2)
+  love.graphics.print({{0, 0, 0, 255}, "< and > OR a and d to move, lmb to sprint, rmb to interact"}, 25, 650, 0, 2, 2)
   love.graphics.draw(backGrass, 0, 400)
   love.graphics.draw(backGrass, backGrass:getWidth(), 400)
   player.animation:draw(player.spritesheet, player.x, player.y)
@@ -196,6 +250,8 @@ function love.draw(dt)
   love.graphics.draw(groundPool, ground:getWidth(), 540)
   love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 540)
   tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
+  text.animation:draw(text.spritesheet, text.x, text.y)
+  heart.animation:draw(heart.spritesheet, heart.x, heart.y)
 
   love.graphics.push()
   love.graphics.translate(-player.x, 0)
