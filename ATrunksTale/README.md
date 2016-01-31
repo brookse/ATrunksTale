@@ -1,5 +1,5 @@
 # A Trunk's Tale
-
+![A Trunk's Tale](ATrunksTale/demo.PNG?raw=true)
 A Trunk's Tale is a story about a young elephant learning how to use his trunk as he searches for his mom in the Saharan Desert.
 
 Install Love
