@@ -32,7 +32,7 @@ function love.load(arg)
   player = {
     spritesheet = babbySprites,
     x = 100,
-    y = 500,
+    y = 300,
   --  width = ,
   --  height = ,
     speed = 200,
@@ -57,7 +57,7 @@ function love.load(arg)
   giraffe = {
     spritesheet = giraffeSprites,
     x = 575,
-    y = 335,
+    y = 135,
     width = 170,
     height = 220,
     animations = {
@@ -75,7 +75,7 @@ function love.load(arg)
       invisible = anim8.newAnimation(t(2,1), 1)
     },
     x = 375,
-    y = 515,
+    y = 315,
     width = 30,
     height = 40
   }
@@ -88,7 +88,7 @@ function love.load(arg)
       invisible = anim8.newAnimation(r(2,1), 1)
     },
     x = 500,
-    y = 250
+    y = 50
   }
   text.animation = text.animations.invisible
 
@@ -99,7 +99,7 @@ function love.load(arg)
       invisible = anim8.newAnimation(h(3,1), 1)
     },
     x = 575,
-    y = 250
+    y = 50
   }
   heart.animation = heart.animations.invisible
 
@@ -237,18 +237,18 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.draw(dt)
-  love.graphics.draw(background, 0, 200)
-  love.graphics.print({{0, 0, 0, 255}, "< and > OR a and d to move, lmb to sprint, rmb to interact"}, 25, 650, 0, 2, 2)
-  love.graphics.draw(backGrass, 0, 400)
-  love.graphics.draw(backGrass, backGrass:getWidth(), 400)
+  love.graphics.draw(background, 0, 0)
+  love.graphics.print({{0, 0, 0, 255}, "A and D to move, LMB to sprint, LMB to interact"}, 80, 450, 0, 2, 2)
+  love.graphics.draw(backGrass, 0, 200)
+  love.graphics.draw(backGrass, backGrass:getWidth(), 200)
   player.animation:draw(player.spritesheet, player.x, player.y)
   if player.carrying == 'nothing' then else
     love.graphics.draw(grass, player.x, player.y)
   end
   giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
-  love.graphics.draw(ground, 0, 540)
-  love.graphics.draw(groundPool, ground:getWidth(), 540)
-  love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 540)
+  love.graphics.draw(ground, 0, 340)
+  love.graphics.draw(groundPool, ground:getWidth(), 340)
+  love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 340)
   tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
   text.animation:draw(text.spritesheet, text.x, text.y)
   heart.animation:draw(heart.spritesheet, heart.x, heart.y)
