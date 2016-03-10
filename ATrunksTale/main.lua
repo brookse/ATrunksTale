@@ -105,18 +105,25 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.draw(dt)
+  -- start painting the background
   love.graphics.draw(background, 0, 0)
   love.graphics.print({{0, 0, 0, 255}, "A and D to move, LMB to sprint, RMB to interact"}, 80, 450, 0, 2, 2)
   love.graphics.draw(backGrass, 0, 200)
   love.graphics.draw(backGrass, backGrass:getWidth(), 200)
+
+  -- paint players and npcs
   player.animation:draw(player.spritesheet, player.x, player.y)
   if player.carrying == 'nothing' then else
     love.graphics.draw(grass, player.x, player.y)
   end
   giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
+
+  -- paint foreground
   love.graphics.draw(ground, 0, 340)
   love.graphics.draw(groundPool, ground:getWidth(), 340)
   love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 340)
+
+  -- paint random interactables
   tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
   text.animation:draw(text.spritesheet, text.x, text.y)
   heart.animation:draw(heart.spritesheet, heart.x, heart.y)
