@@ -1,45 +1,25 @@
 debug = true
 anim8 = require('anim8')
 require 'player'
+require 'giraffe'
 
 function love.load(arg)
   love.graphics.setBackgroundColor(255,255,255)
 
+  -- load background images
   ground = love.graphics.newImage('images/backdrops/Ground.png')
   groundPool = love.graphics.newImage('images/backdrops/GroundPool.png')
   backGrass = love.graphics.newImage('images/backdrops/BackGrass.png')
   backGrassTree = love.graphics.newImage('images/backdrops/BackGrassTree.png')
   background = love.graphics.newImage('images/backdrops/CloudBackground.png')
 
-  giraffeSprites = love.graphics.newImage('images/characters/GiraffeSprite.png')
-  giraffeText = love.graphics.newImage('images/misc/GiraffeText.png')
-  giraffeHeart = love.graphics.newImage('images/misc/Heart.png')
-
   grass = love.graphics.newImage('images/misc/Grass.png')
   grassTuft = love.graphics.newImage('images/misc/GrassTuft.png')
-
-  local g = anim8.newGrid(170, 220, giraffeSprites:getWidth(), giraffeSprites:getHeight(), 0, 0, 0)
-
-  local r = anim8.newGrid(70, 70, giraffeText:getWidth(), giraffeText:getHeight(), 0, 0, 0)
-  local h = anim8.newGrid(65, 70, giraffeHeart:getWidth(), giraffeHeart:getHeight(), 0, 0, 0)
 
   local t = anim8.newGrid(30, 40, grassTuft:getWidth(), grassTuft:getHeight(), 0, 0, 0)
 
   player.load()
-
-  giraffe = {
-    spritesheet = giraffeSprites,
-    x = 575,
-    y = 135,
-    width = 170,
-    height = 220,
-    animations = {
-      idle = anim8.newAnimation(g(1,1, 2,1, 1,1, 3,1), .25),
-      random = anim8.newAnimation(g(4,1, 1,1), 1)
-    },
-    love = 0
-  }
-  giraffe.animation = giraffe.animations.idle
+  giraffe.load()
 
   tuft = {
     spritesheet = grassTuft,
@@ -53,28 +33,6 @@ function love.load(arg)
     height = 40
   }
   tuft.animation = tuft.animations.visible
-
-  text = {
-    spritesheet = giraffeText,
-    animations = {
-      visible = anim8.newAnimation(r(1,1), 1),
-      invisible = anim8.newAnimation(r(2,1), 1)
-    },
-    x = 500,
-    y = 50
-  }
-  text.animation = text.animations.invisible
-
-  heart = {
-    spritesheet = giraffeHeart,
-    animations = {
-      visible = anim8.newAnimation(h(2,1, 1,1), .5),
-      invisible = anim8.newAnimation(h(3,1), 1)
-    },
-    x = 575,
-    y = 50
-  }
-  heart.animation = heart.animations.invisible
 
 end
 
