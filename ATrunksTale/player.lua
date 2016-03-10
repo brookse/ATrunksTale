@@ -1,5 +1,6 @@
 -- PLAYER CLASS
 -- All the implementation for the player, the baby elephant
+require 'giraffe'
 player = {}
 
 function player.load()
@@ -19,16 +20,16 @@ function player.load()
   player.facing = 'right'
   player.grabbed = 'false'
   player.animations = {
-      idleLeft = anim8.newAnimation(bs(8,1, 7,1), .5),
-      idleRight = anim8.newAnimation(bs(1,1, 2,1), .5),
-      walkLeft = anim8.newAnimation(bs(7,1, 6,1, 7,1, 5,1), .25),
-      walkRight = anim8.newAnimation(bs(2,1, 3,1, 2,1, 4,1), .25),
-      idleLeftCarry = anim8.newAnimation(bcs(8,1, 7,1), .5),
-      idleRightCarry = anim8.newAnimation(bcs(1,1, 2,1), .5),
-      walkLeftCarry = anim8.newAnimation(bcs(7,1, 6,1, 7,1, 5,1), .25),
-      walkRightCarry = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
-      grabRight = anim8.newAnimation(bgs(1,1, 2,1, 3,1, 4,1), .25, 'pauseAtEnd'),
-      grabLeft = anim8.newAnimation(bgs(8,1, 7,1, 6,1, 5,1), .25, 'pauseAtEnd'),
+    idleLeft = anim8.newAnimation(bs(8,1, 7,1), .5),
+    idleRight = anim8.newAnimation(bs(1,1, 2,1), .5),
+    walkLeft = anim8.newAnimation(bs(7,1, 6,1, 7,1, 5,1), .25),
+    walkRight = anim8.newAnimation(bs(2,1, 3,1, 2,1, 4,1), .25),
+    idleLeftCarry = anim8.newAnimation(bcs(8,1, 7,1), .5),
+    idleRightCarry = anim8.newAnimation(bcs(1,1, 2,1), .5),
+    walkLeftCarry = anim8.newAnimation(bcs(7,1, 6,1, 7,1, 5,1), .25),
+    walkRightCarry = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
+    grabRight = anim8.newAnimation(bgs(1,1, 2,1, 3,1, 4,1), .25, 'pauseAtEnd'),
+    grabLeft = anim8.newAnimation(bgs(8,1, 7,1, 6,1, 5,1), .25, 'pauseAtEnd'),
   }
   player.carrying = 'nothing'
 
@@ -121,5 +122,67 @@ function love.keyreleased(key)
   elseif key == 'space' then
     -- switch sprite back
     -- stop sound
+  end
+end
+
+function love.mousereleased(x, y, button, istouch)
+  -- stopped sprinting
+  if button == 1 then
+    if player.facing == 'left' then
+      if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
+        -- walking, show left walk
+        player.animation = player.animations.walkLeft
+        player.speed = 200
+      else
+        -- idling left
+        player.animation = player.animations.idleLeft
+        player.speed = 200
+      end
+    elseif player.facing == 'right' then
+      if love.keyboard.isDown('right') or love.keyboard.isDown('d') then
+        -- walking, show right walk
+        player.animation = player.animations.walkRight
+        player.speed = 200
+      else
+        -- idling right
+        player.animation = player.animations.idleRight
+        player.speed = 200
+      end
+    end
+  end
+end
+
+function love.mousepressed(x, y, button, istouch)
+  if button == 2 then
+    -- if click is within space of tuft
+    if x > tuft.x and x < tuft.x + tuft.width
+    and y > tuft.y and y < tuft.y + tuft.height
+    and math.abs(tuft.x - (player.x + 80)) < 30
+    then
+      if player.facing == 'left' then
+        -- do grab animation
+        player.animation = player.animations.grabLeft
+        -- attach object to player
+        player.carrying = grass                       -- TODO fix this
+        -- delete tuft
+        tuft.animation = tuft.animations.invisible
+        text.animation = text.animations.invisible
+        heart.animation = heart.animations.visible
+      elseif player.facing == 'right' then
+        player.animation = player.animations.grabRight
+
+        tuft.animation = tuft.animations.invisible
+        text.animation = text.animations.invisible
+        heart.animation = heart.animations.visible
+      end
+    end
+
+    -- quest checking for giraffe
+    if x > giraffe.x and x < giraffe.x + giraffe.width
+    and y > giraffe.y and y < giraffe.y + giraffe.height
+    and math.abs(giraffe.x - (player.x)) < 30
+    then
+      text.animation = text.animations.visible
+    end
   end
 end
