@@ -14,7 +14,7 @@ function player.load()
 
   -- create player data model
   player.spritesheet = babbySprites
-  player.x = 100
+  player.x = 0
   player.y = 300
   player.speed = 200
   player.facing = 'right'
@@ -50,8 +50,8 @@ end
 function player.move(dt)
   -- player is moving left
   if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
-    if player.x > 0 then
-      if love.mouse.isDown('1') then
+    if player.x > -200 then
+      if love.mouse.isDown('2') then
         -- player is running left
         player.animation = player.animations.walkLeftCarry
         player.speed = 300
@@ -65,8 +65,8 @@ function player.move(dt)
     end
   -- player is moving right
   elseif love.keyboard.isDown('right') or love.keyboard.isDown('d') then
-    if player.x < (love.graphics.getWidth() - 120) then
-      if love.mouse.isDown('1') then
+    if player.x < (GroundTiles[3]:getWidth() - 300) then
+      if love.mouse.isDown('2') then
         -- player is running right
         player.animation = player.animations.walkRightCarry
         player.speed = 300
@@ -104,7 +104,7 @@ end
 
 function love.keyreleased(key)
   if key == 'left' or key == 'a' then
-    if love.mouse.isDown('1') then
+    if love.mouse.isDown('2') then
       player.animation = player.animations.idleLeftCarry
       player.speed = 200
     else
@@ -112,7 +112,7 @@ function love.keyreleased(key)
       player.speed = 200
     end
   elseif key == 'right' or key == 'd' then
-    if love.mouse.isDown('1') then
+    if love.mouse.isDown('2') then
       player.animation = player.animation.idleRightCarry
       player.speed = 200
     else
@@ -127,7 +127,7 @@ end
 
 function love.mousereleased(x, y, button, istouch)
   -- stopped sprinting
-  if button == 1 then
+  if button == 2 then
     if player.facing == 'left' then
       if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
         -- walking, show left walk
@@ -153,11 +153,12 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.mousepressed(x, y, button, istouch)
-  if button == 2 then
+  x, y = camera:mousePosition()
+  if button == 1 then
     -- if click is within space of tuft
     if x > tuft.x and x < tuft.x + tuft.width
     and y > tuft.y and y < tuft.y + tuft.height
-    and math.abs(tuft.x - (player.x + 80)) < 30
+    and math.abs(tuft.x - (player.x + 80)) < 100
     then
       if player.facing == 'left' then
         -- do grab animation
@@ -180,7 +181,7 @@ function love.mousepressed(x, y, button, istouch)
     -- quest checking for giraffe
     if x > giraffe.x and x < giraffe.x + giraffe.width
     and y > giraffe.y and y < giraffe.y + giraffe.height
-    and math.abs(giraffe.x - (player.x)) < 30
+    and math.abs(giraffe.x - (player.x)) < 100
     then
       text.animation = text.animations.visible
     end

@@ -2,19 +2,33 @@ debug = true
 anim8 = require('anim8')
 require 'player'
 require 'giraffe'
+require 'camera'
 
 function love.load(arg)
   love.graphics.setBackgroundColor(255,255,255)
 
   -- load background images
-  ground = love.graphics.newImage('images/backdrops/Ground.png')
-  groundPool = love.graphics.newImage('images/backdrops/GroundPool.png')
+  GroundTiles = {}  -- all ground tiles
+  GroundTiles[1] = love.graphics.newImage('images/backdrops/Ground.png')      -- 1 = ground
+  GroundTiles[2] = love.graphics.newImage('images/backdrops/GroundPool.png')  -- 2 = ground with pool
+  GroundTiles[3] = love.graphics.newImage('images/backdrops/GroundRepeatTransparent.png')
+
+  BackgroundTiles = {}  -- all background tiles
+  BackgroundTiles[1] = love.graphics.newImage('images/backdrops/CloudBackground.png') -- 1 = daytime background
+  BackgroundTiles[2] = love.graphics.newImage('images/backdrops/CloudBackgroundRepeat.png')
+
   backGrass = love.graphics.newImage('images/backdrops/BackGrass.png')
   backGrassTree = love.graphics.newImage('images/backdrops/BackGrassTree.png')
-  background = love.graphics.newImage('images/backdrops/CloudBackground.png')
+  backGrassRepeat = love.graphics.newImage('images/backdrops/BackGrassRepeatTransparent.png')
 
   grass = love.graphics.newImage('images/misc/Grass.png')
   grassTuft = love.graphics.newImage('images/misc/GrassTuft.png')
+
+  -- create ground table
+  GroundMap = { 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2 }
+
+  -- create background table
+  BackgroundMap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 
   local t = anim8.newGrid(30, 40, grassTuft:getWidth(), grassTuft:getHeight(), 0, 0, 0)
 
@@ -34,82 +48,60 @@ function love.load(arg)
   }
   tuft.animation = tuft.animations.visible
 
+  -- Camera stuff
+  -- camera:newLayer(-5, function()
+  --             love.graphics.setColor(255, 255, 255)
+  --             love.graphics.draw(BackgroundTiles[1], 0, 0)
+  --           end)
+  -- camera:newLayer(-2, function()
+  --             love.graphics.setColor(255, 255, 255)
+  --             love.graphics.draw(backGrass, 0, 200)
+  --           end)
+  -- camera:newLayer(0, function()
+  --             love.graphics.setColor(255, 255, 255)
+  --             player.animation:draw(player.spritesheet, player.x, player.y)
+  --           end)
+  -- camera:newLayer(1, function()
+  --             love.graphics.setColor(255, 255, 255)
+  --             giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
+  --             tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
+  --             text.animation:draw(text.spritesheet, text.x, text.y)
+  --             heart.animation:draw(heart.spritesheet, heart.x, heart.y)
+  --           end)
+  -- camera:newLayer(1, function()
+  --             love.graphics.setColor(255, 255, 255)
+  --             love.graphics.draw(GroundTiles[1], 0, 340)
+  --           end)
+
+  -- Water spraying data
+  waterMeter = 0
+
 end
 
 function love.update(dt)
   player.update(dt)
   giraffe.animation:update(dt)
   heart.animation:update(dt)
-end
-
-function love.mousepressed(x, y, button, istouch)
-  if button == 2 then
-    -- if click is within space of tuft
-    if x > tuft.x and x < tuft.x + tuft.width
-    and y > tuft.y and y < tuft.y + tuft.height
-    and math.abs(tuft.x - (player.x + 80)) < 30
-    then
-      if player.facing == 'left' then
-        -- do grab animation
-        player.animation = player.animations.grabLeft
-        -- attach object to player
-        player.carrying = grass                       -- TODO fix this
-        -- delete tuft
-        tuft.animation = tuft.animations.invisible
-        text.animation = text.animations.invisible
-        heart.animation = heart.animations.visible
-      elseif player.facing == 'right' then
-        player.animation = player.animations.grabRight
-
-        tuft.animation = tuft.animations.invisible
-        text.animation = text.animations.invisible
-        heart.animation = heart.animations.visible
-      end
-    end
-
-    -- quest checking for giraffe
-    if x > giraffe.x and x < giraffe.x + giraffe.width
-    and y > giraffe.y and y < giraffe.y + giraffe.height
-    and math.abs(giraffe.x - (player.x)) < 30
-    then
-      text.animation = text.animations.visible
-    end
+  if player.x < 0 then
+    camera.x = -200
+  elseif player.x > GroundTiles[3]:getWidth() - 800 then
+    camera.x = GroundTiles[3]:getWidth() - 1000
+  else
+    camera.x = player.x-200
   end
-end
 
-function love.mousereleased(x, y, button, istouch)
-  -- stopped sprinting
-  if button == 1 then
-    if player.facing == 'left' then
-      if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
-        -- walking, show left walk
-        player.animation = player.animations.walkLeft
-        player.speed = 200
-      else
-        -- idling left
-        player.animation = player.animations.idleLeft
-        player.speed = 200
-      end
-    elseif player.facing == 'right' then
-      if love.keyboard.isDown('right') or love.keyboard.isDown('d') then
-        -- walking, show right walk
-        player.animation = player.animations.walkRight
-        player.speed = 200
-      else
-        -- idling right
-        player.animation = player.animations.idleRight
-        player.speed = 200
-      end
-    end
-  end
+--  myCamera1:update(dt, player.x)
 end
 
 function love.draw(dt)
+  camera:set()
   -- start painting the background
-  love.graphics.draw(background, 0, 0)
-  love.graphics.print({{0, 0, 0, 255}, "A and D to move, LMB to sprint, RMB to interact"}, 80, 450, 0, 2, 2)
-  love.graphics.draw(backGrass, 0, 200)
-  love.graphics.draw(backGrass, backGrass:getWidth(), 200)
+--  if player.x < GroundTiles[3]:getWidth() - 800 and player.x > 0 then
+    love.graphics.draw(BackgroundTiles[2], -200, 0)
+    love.graphics.print({{0, 0, 0, 255}, "A and D to move, RMB to sprint, LMB to interact"}, 80, 450, 0, 2, 2)
+    love.graphics.draw(backGrassRepeat, -200, 200)
+--    love.graphics.draw(backGrass, backGrass:getWidth(), 200)
+--  end
 
   -- paint players and npcs
   player.animation:draw(player.spritesheet, player.x, player.y)
@@ -118,18 +110,25 @@ function love.draw(dt)
   end
   giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
 
+--  if player.x < GroundTiles[3]:getWidth() - 800 and player.x > 99 then
   -- paint foreground
-  love.graphics.draw(ground, 0, 340)
-  love.graphics.draw(groundPool, ground:getWidth(), 340)
-  love.graphics.draw(ground, ground:getWidth() + groundPool:getWidth(), 340)
+  -- love.graphics.draw(GroundTiles[1], 0, 340)
+  -- love.graphics.draw(GroundTiles[2], GroundTiles[1]:getWidth(), 340)
+  -- love.graphics.draw(GroundTiles[1], GroundTiles[1]:getWidth() + GroundTiles[2]:getWidth(), 340)
+    love.graphics.draw(GroundTiles[3], -200, 340)
 
-  -- paint random interactables
-  tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
-  text.animation:draw(text.spritesheet, text.x, text.y)
-  heart.animation:draw(heart.spritesheet, heart.x, heart.y)
+    -- paint random interactables
+    tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
+    text.animation:draw(text.spritesheet, text.x, text.y)
+    heart.animation:draw(heart.spritesheet, heart.x, heart.y)
 
-  love.graphics.push()
-  love.graphics.translate(-player.x, 0)
-  love.graphics.pop()
+    --love.graphics.push()
+    love.graphics.translate(-player.x, 0)
+    --love.graphics.pop()
+--  end
+
+  camera:unset()
+
+  --camera:draw()
 
 end

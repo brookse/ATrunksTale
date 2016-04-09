@@ -18,7 +18,7 @@ function giraffe.load()
 
     -- create giraffe data model
     giraffe.spritesheet = giraffeSprites
-    giraffe.x = 575
+    giraffe.x = 600
     giraffe.y = 135
     giraffe.width = 170
     giraffe.height = 220
