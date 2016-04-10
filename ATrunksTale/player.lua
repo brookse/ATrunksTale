@@ -5,12 +5,14 @@ player = {}
 
 function player.load()
   -- load elephant sprite image
-  babbySprites = love.graphics.newImage('images/characters/ElephantSprite.png')
+  babbySprites = love.graphics.newImage('images/characters/ElephantSpritesheet.png')
 
   -- create animation grids for idle and walk, carry, and grabbing
   local bs = anim8.newGrid(85, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 0, 0)
   local bcs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 60, 0)
   local bgs = anim8.newGrid(90, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 120, 0)
+  local bssright = anim8.newGrid(140, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 180, 0)
+  local bssleft = anim8.newGrid(140, 60, babbySprites:getWidth(), babbySprites:getHeight(), 0, 240, 0)
 
   -- create player data model
   player.spritesheet = babbySprites
@@ -30,6 +32,10 @@ function player.load()
     walkRightCarry = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
     grabRight = anim8.newAnimation(bgs(1,1, 2,1, 3,1, 4,1), .25, 'pauseAtEnd'),
     grabLeft = anim8.newAnimation(bgs(8,1, 7,1, 6,1, 5,1), .25, 'pauseAtEnd'),
+    drinkLeft = anim8.newAnimation(bssleft(6,1, 5,1, 4,1), .25, 'pauseAtEnd'),
+    drinkRight = anim8.newAnimation(bssright(1,1, 2,1, 3,1), .25, 'pauseAtEnd'),
+    sprayLeft = anim8.newAnimation(bssleft(6,1, 5,1, 4,1, 3,1, 2,1, 1,1, 4,1, 5,1, 6,1), .1, 'pauseAtEnd'),
+    sprayRight = anim8.newAnimation(bssright(1,1, 2,1, 3,1, 4,1, 5,1, 6,1, 3,1, 2,1, 1,1), .1, 'pauseAtEnd')
   }
   player.carrying = 'nothing'
 
@@ -120,8 +126,50 @@ function love.keyreleased(key)
       player.speed = 200
     end
   elseif key == 'space' then
-    -- switch sprite back
-    -- stop sound
+    -- spray water trigger
+    -- find orientation
+    if player.facing == 'left' then
+      -- make sure you can spray
+      if waterMeter > 0 then
+        -- play left spray animation
+        player.animation = player.animations.sprayLeft
+        player.animation:gotoFrame(1)
+        player.animation:resume()
+
+        if player.x > birds.x then
+          birds.animation = birds.animations.flying
+          bheart.animation = bheart.animations.visible
+        end
+
+        -- decrement water meter data
+        waterMeter = waterMeter - 1
+        -- return to left idle
+
+        -- update UI
+        checkWater()
+      end
+    elseif player.facing == 'right' then
+      -- make sure you can spray
+      if waterMeter > 0 then
+        -- play right spray animation
+        player.animation = player.animations.sprayRight
+        player.animation:gotoFrame(1)
+        player.animation:resume()
+
+        if player.x < birds.x then
+          birds.animation = birds.animations.flying
+          bheart.animation = bheart.animations.visible
+        end
+
+        -- decrement water meter data
+        waterMeter = waterMeter - 1
+        -- return to right idle
+
+        -- update UI
+        checkWater()
+      end
+    end
+
   end
 end
 
@@ -163,14 +211,19 @@ function love.mousepressed(x, y, button, istouch)
       if player.facing == 'left' then
         -- do grab animation
         player.animation = player.animations.grabLeft
+    --    player.animation:gotoFrame(1)
+    --    player.animation:resume()
+
         -- attach object to player
-        player.carrying = grass                       -- TODO fix this
+    --    player.carrying = grass                       -- TODO fix this
         -- delete tuft
         tuft.animation = tuft.animations.invisible
         text.animation = text.animations.invisible
         heart.animation = heart.animations.visible
       elseif player.facing == 'right' then
         player.animation = player.animations.grabRight
+    --    player.animation:gotoFrame(1)
+    --    player.animation:resume()
 
         tuft.animation = tuft.animations.invisible
         text.animation = text.animations.invisible
@@ -185,5 +238,57 @@ function love.mousepressed(x, y, button, istouch)
     then
       text.animation = text.animations.visible
     end
+
+    -- quest checking for bird
+    if x > bird.x and x < bird.x + bird.width
+    and y > bird.y and y < bird.y + bird.height
+    then
+      bird.animation = bird.animations.pointLeft
+    end
+
+    -- check for water drink
+    if x > 1050 and x < 1300
+    and y > 300
+    then
+      if waterMeter < 10 then
+        waterMeter = waterMeter + 1
+
+        checkWater()
+
+        if player.facing == 'left' then
+          player.animation = player.animations.drinkLeft
+        elseif player.facing == 'right' then
+          player.animation = player.animations.drinkRight
+        end
+
+      end
+    end
+
+  end
+end
+
+function checkWater()
+  if waterMeter == 0 then
+    waterMeterUI.animation = waterMeterUI.animations.zero
+  elseif waterMeter == 1 then
+    waterMeterUI.animation = waterMeterUI.animations.one
+  elseif waterMeter == 2 then
+    waterMeterUI.animation = waterMeterUI.animations.two
+  elseif waterMeter == 3 then
+    waterMeterUI.animation = waterMeterUI.animations.three
+  elseif waterMeter == 4 then
+    waterMeterUI.animation = waterMeterUI.animations.four
+  elseif waterMeter == 5 then
+    waterMeterUI.animation = waterMeterUI.animations.five
+  elseif waterMeter == 6 then
+    waterMeterUI.animation = waterMeterUI.animations.six
+  elseif waterMeter == 7 then
+    waterMeterUI.animation = waterMeterUI.animations.seven
+  elseif waterMeter == 8 then
+    waterMeterUI.animation = waterMeterUI.animations.eight
+  elseif waterMeter == 9 then
+      waterMeterUI.animation = waterMeterUI.animations.nine
+  elseif waterMeter == 10 then
+    waterMeterUI.animation = waterMeterUI.animations.ten
   end
 end

@@ -45,7 +45,7 @@ function giraffe.load()
       visible = anim8.newAnimation(h(2,1, 1,1), .5),
       invisible = anim8.newAnimation(h(3,1), 1)
     }
-    heart.x = 575
+    heart.x = 600
     heart.y = 50
     heart.animation = heart.animations.invisible
 
