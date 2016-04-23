@@ -81,7 +81,7 @@ function player.move(dt)
         player.speed = 300
         -- check for bashing
         if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
-          bashable.animation = bashable.animations.invisible
+          bashable.animation = bashable.animations.breaking
         end
       else
         -- player is walking left
@@ -100,7 +100,7 @@ function player.move(dt)
         player.speed = 300
         -- check for bashing
         if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
-          bashable.animation = bashable.animations.invisible
+          bashable.animation = bashable.animations.breaking
         end
       else
         -- player is walking right

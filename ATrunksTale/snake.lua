@@ -10,14 +10,14 @@ function snake.load()
     snakeSprites = love.graphics.newImage('images/characters/SnakeSitTransparent.png')
   --  birdText = love.graphics.newImage('images/misc/BirdText.png')
     snakeHeart = love.graphics.newImage('images/misc/Heart.png')
-    bashSprite = love.graphics.newImage('images/misc/Heart.png')
+    bashSprite = love.graphics.newImage('images/misc/TermiteTransparent.png')
 
     -- create animation grids for giraffe, text, and heart
     local bs = anim8.newGrid(100, 90, snakeSprites:getWidth(), snakeSprites:getHeight(), 0, 0, 0)
 --    local bps = anim8.newGrid(55, 55, snakeSprites:getWidth(), snakeSprites:getHeight(), 0, 0, 0)
   --  local r = anim8.newGrid(70, 70, birdText:getWidth(), birdText:getHeight(), 0, 0, 0)
     local h = anim8.newGrid(65, 70, snakeHeart:getWidth(), snakeHeart:getHeight(), 0, 0, 0)
-    local t = anim8.newGrid(65, 70, bashSprite:getWidth(), bashSprite:getHeight(), 0, 0, 0)
+    local t = anim8.newGrid(190, 175, bashSprite:getWidth(), bashSprite:getHeight(), 0, 0, 0)
 
     -- create giraffe data model
     snake.spritesheet = snakeSprites
@@ -53,13 +53,13 @@ function snake.load()
     -- create bashable data model
     bashable.spritesheet = bashSprite
     bashable.animations = {
-      visible = anim8.newAnimation(t(2,1), 1),
-      invisible = anim8.newAnimation(t(3,1), 1)
+      standing = anim8.newAnimation(t(1,1), 1),
+      breaking = anim8.newAnimation(t(2,1, 3,1, 4,1, 5,1, 6,1), {.1, .2, .2, .2, .2}, 'pauseAtEnd')
     }
-    bashable.x = 1800
-    bashable.y = 300
-    bashable.width = 65
-    bashable.height = 70
-    bashable.animation = bashable.animations.visible
+    bashable.x = 2300
+    bashable.y = 200
+    bashable.width = 190
+    bashable.height = 175
+    bashable.animation = bashable.animations.standing
 
 end
