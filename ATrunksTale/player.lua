@@ -49,6 +49,7 @@ function player.load()
 end
 
 function player.update(dt)
+  -- adjust the width depending on the animation
   if player.animation == player.animations.idleRight or
     player.animation == player.animations.idleLeft or
     player.animation == player.animations.walkLeft or
@@ -79,7 +80,7 @@ function player.move(dt)
         player.animation = player.animations.walkLeftCarry
         player.speed = 300
         -- check for bashing
-        if player.x >= bashable.x and player.x <= bashable.x+bashable.width then
+        if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
           bashable.animation = bashable.animations.invisible
         end
       else
@@ -98,7 +99,7 @@ function player.move(dt)
         player.animation = player.animations.walkRightCarry
         player.speed = 300
         -- check for bashing
-        if player.x >= bashable.x and player.x <= bashable.x+bashable.width then
+        if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
           bashable.animation = bashable.animations.invisible
         end
       else
@@ -132,7 +133,7 @@ end
 
 function love.keyreleased(key)
   if key == 'left' or key == 'a' then
-    if love.mouse.isDown('2') then
+    if love.mouse.isDown('2') or love.mouse.isDown('1') then
       player.animation = player.animations.idleLeftCarry
       player.speed = 200
     else
@@ -140,8 +141,8 @@ function love.keyreleased(key)
       player.speed = 200
     end
   elseif key == 'right' or key == 'd' then
-    if love.mouse.isDown('2') then
-      player.animation = player.animation.idleRightCarry
+    if love.mouse.isDown('2') or love.mouse.isDown('1') then
+      player.animation = player.animations.idleRightCarry
       player.speed = 200
     else
       player.animation = player.animations.idleRight
@@ -198,6 +199,28 @@ end
 function love.mousereleased(x, y, button, istouch)
   -- stopped sprinting
   if button == 2 then
+    if player.facing == 'left' then
+      if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
+        -- walking, show left walk
+        player.animation = player.animations.walkLeft
+        player.speed = 200
+      else
+        -- idling left
+        player.animation = player.animations.idleLeft
+        player.speed = 200
+      end
+    elseif player.facing == 'right' then
+      if love.keyboard.isDown('right') or love.keyboard.isDown('d') then
+        -- walking, show right walk
+        player.animation = player.animations.walkRight
+        player.speed = 200
+      else
+        -- idling right
+        player.animation = player.animations.idleRight
+        player.speed = 200
+      end
+    end
+  elseif button == 1 then
     if player.facing == 'left' then
       if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
         -- walking, show left walk
