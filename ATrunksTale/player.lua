@@ -1,6 +1,9 @@
 -- PLAYER CLASS
 -- All the implementation for the player, the baby elephant
 require 'giraffe'
+require 'snake'
+--require 'ui'
+
 player = {}
 
 function player.load()
@@ -40,18 +43,32 @@ function player.load()
   player.carrying = 'nothing'
 
   player.animation = player.animations.idleRight
+  player.width = 85
+  player.height = 60
 
 end
 
 function player.update(dt)
+  if player.animation == player.animations.idleRight or
+    player.animation == player.animations.idleLeft or
+    player.animation == player.animations.walkLeft or
+    player.animation == player.animations.walkRight then
+      player.width = 85
+  elseif player.animation == player.animations.idleLeftCarry or
+    player.animation == player.animations.idleRightCarry or
+    player.animation == player.animations.walkLeftCarry or
+    player.animation == player.animations.walkRightCarry or
+    player.animation == player.animations.grabRight or
+    player.animation == player.animations.grabLeft then
+      player.width = 90
+  elseif player.animation == player.animations.drinkLeft or
+    player.animation == player.animations.drinkRight or
+    player.animation == player.animations.sprayLeft or
+    player.animation == player.animations.sprayRight then
+      player.width = 140
+  end
   player.move(dt)
 end
-
---[[
-function player.draw()
-  player.animation:draw(player.spritesheet, player.x, player.y)
-end
-]]
 
 function player.move(dt)
   -- player is moving left
@@ -61,6 +78,10 @@ function player.move(dt)
         -- player is running left
         player.animation = player.animations.walkLeftCarry
         player.speed = 300
+        -- check for bashing
+        if player.x >= bashable.x and player.x <= bashable.x+bashable.width then
+          bashable.animation = bashable.animations.invisible
+        end
       else
         -- player is walking left
         player.animation = player.animations.walkLeft
@@ -76,6 +97,10 @@ function player.move(dt)
         -- player is running right
         player.animation = player.animations.walkRightCarry
         player.speed = 300
+        -- check for bashing
+        if player.x >= bashable.x and player.x <= bashable.x+bashable.width then
+          bashable.animation = bashable.animations.invisible
+        end
       else
         -- player is walking right
         player.animation = player.animations.walkRight
@@ -84,9 +109,6 @@ function player.move(dt)
       player.x = player.x + (player.speed*dt)
       player.facing = 'right'
     end
---[=[  elseif love.keyboard.isDown('space') then
-    -- play sound
-    -- switch to sprite--]=]
   else
     -- player is not moving, but is carrying trunk
     if love.mouse.isDown('1') then
@@ -130,7 +152,7 @@ function love.keyreleased(key)
     -- find orientation
     if player.facing == 'left' then
       -- make sure you can spray
-      if waterMeter > 0 then
+      if waterMeterUI.waterLevel > 0 then
         -- play left spray animation
         player.animation = player.animations.sprayLeft
         player.animation:gotoFrame(1)
@@ -142,7 +164,7 @@ function love.keyreleased(key)
         end
 
         -- decrement water meter data
-        waterMeter = waterMeter - 1
+        waterMeterUI.waterLevel = waterMeterUI.waterLevel - 1
         -- return to left idle
 
         -- update UI
@@ -150,7 +172,7 @@ function love.keyreleased(key)
       end
     elseif player.facing == 'right' then
       -- make sure you can spray
-      if waterMeter > 0 then
+      if waterMeterUI.waterLevel > 0 then
         -- play right spray animation
         player.animation = player.animations.sprayRight
         player.animation:gotoFrame(1)
@@ -162,7 +184,7 @@ function love.keyreleased(key)
         end
 
         -- decrement water meter data
-        waterMeter = waterMeter - 1
+        waterMeterUI.waterLevel = waterMeterUI.waterLevel - 1
         -- return to right idle
 
         -- update UI
@@ -250,8 +272,8 @@ function love.mousepressed(x, y, button, istouch)
     if x > 1050 and x < 1300
     and y > 300
     then
-      if waterMeter < 10 then
-        waterMeter = waterMeter + 1
+      if waterMeterUI.waterLevel < 10 then
+        waterMeterUI.waterLevel = waterMeterUI.waterLevel + 1
 
         checkWater()
 
@@ -268,27 +290,27 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function checkWater()
-  if waterMeter == 0 then
+  if waterMeterUI.waterLevel == 0 then
     waterMeterUI.animation = waterMeterUI.animations.zero
-  elseif waterMeter == 1 then
+  elseif waterMeterUI.waterLevel == 1 then
     waterMeterUI.animation = waterMeterUI.animations.one
-  elseif waterMeter == 2 then
+  elseif waterMeterUI.waterLevel == 2 then
     waterMeterUI.animation = waterMeterUI.animations.two
-  elseif waterMeter == 3 then
+  elseif waterMeterUI.waterLevel == 3 then
     waterMeterUI.animation = waterMeterUI.animations.three
-  elseif waterMeter == 4 then
+  elseif waterMeterUI.waterLevel == 4 then
     waterMeterUI.animation = waterMeterUI.animations.four
-  elseif waterMeter == 5 then
+  elseif waterMeterUI.waterLevel == 5 then
     waterMeterUI.animation = waterMeterUI.animations.five
-  elseif waterMeter == 6 then
+  elseif waterMeterUI.waterLevel == 6 then
     waterMeterUI.animation = waterMeterUI.animations.six
-  elseif waterMeter == 7 then
+  elseif waterMeterUI.waterLevel == 7 then
     waterMeterUI.animation = waterMeterUI.animations.seven
-  elseif waterMeter == 8 then
+  elseif waterMeterUI.waterLevel == 8 then
     waterMeterUI.animation = waterMeterUI.animations.eight
-  elseif waterMeter == 9 then
+  elseif waterMeterUI.waterLevel == 9 then
       waterMeterUI.animation = waterMeterUI.animations.nine
-  elseif waterMeter == 10 then
+  elseif waterMeterUI.waterLevel == 10 then
     waterMeterUI.animation = waterMeterUI.animations.ten
   end
 end

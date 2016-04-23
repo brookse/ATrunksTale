@@ -1,8 +1,10 @@
 debug = true
 anim8 = require('anim8')
+--require 'ui'
 require 'player'
 require 'giraffe'
 require 'bird'
+require 'snake'
 require 'camera'
 
 function love.load(arg)
@@ -22,6 +24,7 @@ function love.load(arg)
   backGrassTree = love.graphics.newImage('images/backdrops/BackGrassTree.png')
   backGrassRepeat = love.graphics.newImage('images/backdrops/BackGrassRepeatTransparent.png')
   tree = love.graphics.newImage('images/misc/TreeTransparent.png')
+  boulder = love.graphics.newImage('images/misc/BoulderTransboulder.png')
 
   grass = love.graphics.newImage('images/misc/Grass.png')
   grassTuft = love.graphics.newImage('images/misc/GrassTuft.png')
@@ -37,6 +40,7 @@ function love.load(arg)
   player.load()
   giraffe.load()
   bird.load()
+  snake.load()
 
   tuft = {
     spritesheet = grassTuft,
@@ -77,39 +81,44 @@ function love.load(arg)
   --           end)
 
   -- UI
+  waterMeterUI = {}
   waterbar = love.graphics.newImage('images/misc/WaterBar.png')
+
   local wm = anim8.newGrid(270, 45, waterbar:getWidth(), waterbar:getHeight(), 0, 0, 0)
 
-  waterMeter = 0
-  waterMeterUI = {
-    spritesheet = waterbar,
-    animations = {
-      ten = anim8.newAnimation(wm(1,1), 1),
-      nine = anim8.newAnimation(wm(1,2), 1),
-      eight = anim8.newAnimation(wm(1,3), 1),
-      seven = anim8.newAnimation(wm(1,4), 1),
-      six = anim8.newAnimation(wm(1,5), 1),
-      five = anim8.newAnimation(wm(1,6), 1),
-      four = anim8.newAnimation(wm(1,7), 1),
-      three = anim8.newAnimation(wm(1,8), 1),
-      two = anim8.newAnimation(wm(1,9), 1),
-      one = anim8.newAnimation(wm(1,10), 1),
-      zero = anim8.newAnimation(wm(1,11), 1),
-    },
-    x = 500,
-    y = 440
+  waterMeterUI.waterLevel = 0
+  waterMeterUI.spritesheet = waterbar
+  waterMeterUI.animations = {
+    ten = anim8.newAnimation(wm(1,1), 1),
+    nine = anim8.newAnimation(wm(1,2), 1),
+    eight = anim8.newAnimation(wm(1,3), 1),
+    seven = anim8.newAnimation(wm(1,4), 1),
+    six = anim8.newAnimation(wm(1,5), 1),
+    five = anim8.newAnimation(wm(1,6), 1),
+    four = anim8.newAnimation(wm(1,7), 1),
+    three = anim8.newAnimation(wm(1,8), 1),
+    two = anim8.newAnimation(wm(1,9), 1),
+    one = anim8.newAnimation(wm(1,10), 1),
+    zero = anim8.newAnimation(wm(1,11), 1)
   }
+  waterMeterUI.x = 500
+  waterMeterUI.y = 440
   waterMeterUI.animation = waterMeterUI.animations.zero
 
 end
 
 function love.update(dt)
   player.update(dt)
-  giraffe.animation:update(dt)
+
   bird.animation:update(dt)
   birds.animation:update(dt)
+  giraffe.animation:update(dt)
   heart.animation:update(dt)
   bheart.animation:update(dt)
+  snake.animation:update(dt)
+  sheart.animation:update(dt)
+  bashable.animation:update(dt)
+
   if player.x < 0 then
     camera.x = -200
   elseif player.x > GroundTiles[3]:getWidth() - 800 then
@@ -123,14 +132,13 @@ end
 
 function love.draw(dt)
   camera:set()
+
   -- start painting the background
---  if player.x < GroundTiles[3]:getWidth() - 800 and player.x > 0 then
-    love.graphics.draw(BackgroundTiles[2], -200, 0)
-    love.graphics.print({{0, 0, 0, 255}, "A and D to move, RMB to sprint, LMB to interact"}, 80, 450, 0, 2, 2)
-    love.graphics.draw(backGrassRepeat, -200, 200)
-    love.graphics.draw(tree, 1200, 100)
---    love.graphics.draw(backGrass, backGrass:getWidth(), 200)
---  end
+  love.graphics.draw(BackgroundTiles[2], -200, 0)
+  love.graphics.print({{0, 0, 0, 255}, "A and D to move, RMB to sprint, LMB to interact"}, 80, 450, 0, 2, 2)
+  love.graphics.draw(backGrassRepeat, -200, 200)
+  love.graphics.draw(tree, 1200, 100)
+  love.graphics.draw(boulder, 1900, 200)
 
   -- paint players and npcs
   birds.animation:draw(birds.spritesheet, birds.x, birds.y)
@@ -140,24 +148,20 @@ function love.draw(dt)
   end
   giraffe.animation:draw(giraffe.spritesheet, giraffe.x, giraffe.y)
   bird.animation:draw(bird.spritesheet, bird.x, bird.y)
+  snake.animation:draw(snake.spritesheet, snake.x, snake.y)
 
---  if player.x < GroundTiles[3]:getWidth() - 800 and player.x > 99 then
   -- paint foreground
-  -- love.graphics.draw(GroundTiles[1], 0, 340)
-  -- love.graphics.draw(GroundTiles[2], GroundTiles[1]:getWidth(), 340)
-  -- love.graphics.draw(GroundTiles[1], GroundTiles[1]:getWidth() + GroundTiles[2]:getWidth(), 340)
-    love.graphics.draw(GroundTiles[3], -200, 340)
+  love.graphics.draw(GroundTiles[3], -200, 340)
 
-    -- paint random interactables
-    tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
-    text.animation:draw(text.spritesheet, text.x, text.y)
-    heart.animation:draw(heart.spritesheet, heart.x, heart.y)
-    bheart.animation:draw(bheart.spritesheet, bheart.x, bheart.y)
+  -- paint random interactables
+  tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
+  text.animation:draw(text.spritesheet, text.x, text.y)
+  heart.animation:draw(heart.spritesheet, heart.x, heart.y)
+  bheart.animation:draw(bheart.spritesheet, bheart.x, bheart.y)
+  sheart.animation:draw(sheart.spritesheet, sheart.x, sheart.y)
+  bashable.animation:draw(bashable.spritesheet, bashable.x, bashable.y)
 
-    --love.graphics.push()
-    love.graphics.translate(-player.x, 0)
-    --love.graphics.pop()
---  end
+  love.graphics.translate(-player.x, 0)
 
   camera:unset()
 
