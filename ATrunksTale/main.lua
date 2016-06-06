@@ -81,8 +81,10 @@ function love.load(arg)
   --           end)
 
   -- UI
+  backgroundGUI = love.graphics.newImage('images/ui/GUI4.png')
+
   waterMeterUI = {}
-  waterbar = love.graphics.newImage('images/misc/WaterBar.png')
+  waterbar = love.graphics.newImage('images/ui/WaterBarLight.png')
 
   local wm = anim8.newGrid(270, 45, waterbar:getWidth(), waterbar:getHeight(), 0, 0, 0)
 
@@ -105,6 +107,26 @@ function love.load(arg)
   waterMeterUI.y = 440
   waterMeterUI.animation = waterMeterUI.animations.zero
 
+  -- cursors
+  normalcursor = love.mouse.newCursor("images/ui/cursors/normalcursor.png")
+  hovercursor = love.mouse.newCursor("images/ui/cursors/hovercursor.png")
+  love.mouse.setCursor(normalcursor)
+
+  -- quest checks
+  tutorialQuests = {
+    Qone = false,
+    Qtwo = false,
+    Qthree = false
+  }
+  --
+  mom = {}
+  mummaSprites = love.graphics.newImage('images/characters/HappymomTrans.png')
+  local bs = anim8.newGrid(185, 115, mummaSprites:getWidth(), mummaSprites:getHeight(), 0, 0, 0)
+  mom.spritesheet = mummaSprites
+  mom.x = 2800
+  mom.y = 240
+  mom.animation = anim8.newAnimation(bs(1,1, 2,1, 3,1, 4,1, 5,1, 6,1, 7,1, 8,1, 9,1, 10,1, 11,1, 12,1, 13,1, 14,1), .15)
+
 end
 
 function love.update(dt)
@@ -115,16 +137,38 @@ function love.update(dt)
   giraffe.animation:update(dt)
   heart.animation:update(dt)
   bheart.animation:update(dt)
+  btext.animation:update(dt)
   snake.animation:update(dt)
   sheart.animation:update(dt)
+  stext.animation:update(dt)
   bashable.animation:update(dt)
+  mom.animation:update(dt)
 
-  if player.x < 0 then
-    camera.x = -200
-  elseif player.x > GroundTiles[3]:getWidth() - 800 then
-    camera.x = GroundTiles[3]:getWidth() - 1000
+  checkCursorPosition()
+
+  -- player completed all quests and is beyond the bashable object
+  if tutorialQuests.Qone == true
+  and tutorialQuests.Qtwo == true
+  and tutorialQuests.Qthree == true
+  and player.x > bashable.x + bashable.width/2
+  then
+    if player.x < 0 then
+      camera.x = -200
+    elseif player.x > GroundTiles[3]:getWidth() then
+    --  camera.x = player.x-200
+      camera.x = GroundTiles[3]:getWidth() - 200
+    else
+      camera.x = player.x-200
+    end
+  -- otherwise continue normally
   else
-    camera.x = player.x-200
+    if player.x < 0 then
+      camera.x = -200
+    elseif player.x > GroundTiles[3]:getWidth() - 800 then
+      camera.x = GroundTiles[3]:getWidth() - 1000
+    else
+      camera.x = player.x-200
+    end
   end
 
 --  myCamera1:update(dt, player.x)
@@ -135,8 +179,10 @@ function love.draw(dt)
 
   -- start painting the background
   love.graphics.draw(BackgroundTiles[2], -200, 0)
+  love.graphics.draw(BackgroundTiles[2], BackgroundTiles[2]:getWidth()-200, 0)
   love.graphics.print({{0, 0, 0, 255}, "A and D to move, RMB to sprint, LMB to interact"}, 80, 450, 0, 2, 2)
   love.graphics.draw(backGrassRepeat, -200, 200)
+  love.graphics.draw(backGrassRepeat, backGrassRepeat:getWidth()-200, 200)
   love.graphics.draw(tree, 1200, 100)
   love.graphics.draw(boulder, 1900, 200)
 
@@ -152,20 +198,63 @@ function love.draw(dt)
 
   -- paint foreground
   love.graphics.draw(GroundTiles[3], -200, 340)
+  love.graphics.draw(GroundTiles[3], GroundTiles[3]:getWidth()-200, 340)
 
   -- paint random interactables
   tuft.animation:draw(tuft.spritesheet, tuft.x, tuft.y)
   text.animation:draw(text.spritesheet, text.x, text.y)
   heart.animation:draw(heart.spritesheet, heart.x, heart.y)
   bheart.animation:draw(bheart.spritesheet, bheart.x, bheart.y)
+  btext.animation:draw(btext.spritesheet, btext.x, btext.y)
   sheart.animation:draw(sheart.spritesheet, sheart.x, sheart.y)
   bashable.animation:draw(bashable.spritesheet, bashable.x, bashable.y)
+  stext.animation:draw(stext.spritesheet, stext.x, stext.y)
+  mom.animation:draw(mom.spritesheet, mom.x, mom.y)
 
   love.graphics.translate(-player.x, 0)
 
   camera:unset()
 
+  love.graphics.draw(backgroundGUI, 0, 424)
   waterMeterUI.animation:draw(waterMeterUI.spritesheet, waterMeterUI.x, waterMeterUI.y)
   --camera:draw()
 
+
+end
+
+function checkCursorPosition()
+
+  x, y = camera:mousePosition()
+  -- check hover on giraffe
+  if x > giraffe.x and x < giraffe.x + giraffe.width
+  and y > giraffe.y and y < giraffe.y + giraffe.height
+  then
+    love.mouse.setCursor(hovercursor)
+
+  -- check hover on bird
+  elseif x > bird.x and x < bird.x + bird.width
+  and y > bird.y and y < bird.y + bird.height
+  then
+    love.mouse.setCursor(hovercursor)
+
+  -- check hover on snake
+  elseif x > snake.x and x < snake.x + snake.width
+  and y > snake.y and y < snake.y + snake.height
+  then
+    love.mouse.setCursor(hovercursor)
+
+  -- check hover on tuft
+  elseif x > tuft.x and x < tuft.x + tuft.width
+  and y > tuft.y and y < tuft.y + tuft.height
+  then
+    love.mouse.setCursor(hovercursor)
+
+  -- check hover on pool
+  elseif x > 1050 and x < 1300
+  and y > 350
+  then
+    love.mouse.setCursor(hovercursor)
+  else
+    love.mouse.setCursor(normalcursor)
+  end
 end
