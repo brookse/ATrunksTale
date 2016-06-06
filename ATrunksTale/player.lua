@@ -31,8 +31,8 @@ function player.load()
     walkRight = anim8.newAnimation(bs(2,1, 3,1, 2,1, 4,1), .25),
     idleLeftCarry = anim8.newAnimation(bcs(8,1, 7,1), .5),
     idleRightCarry = anim8.newAnimation(bcs(1,1, 2,1), .5),
-    walkLeftCarry = anim8.newAnimation(bcs(7,1, 6,1, 7,1, 5,1), .25),
-    walkRightCarry = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
+    runLeft = anim8.newAnimation(bcs(7,1, 6,1, 7,1, 5,1), .25),
+    runRight = anim8.newAnimation(bcs(2,1, 3,1, 2,1, 4,1), .25),
     grabRight = anim8.newAnimation(bgs(1,1, 2,1, 3,1, 4,1), .25, 'pauseAtEnd'),
     grabLeft = anim8.newAnimation(bgs(8,1, 7,1, 6,1, 5,1), .25, 'pauseAtEnd'),
     drinkLeft = anim8.newAnimation(bssleft(6,1, 5,1, 4,1), .25, 'pauseAtEnd'),
@@ -57,8 +57,8 @@ function player.update(dt)
       player.width = 85
   elseif player.animation == player.animations.idleLeftCarry or
     player.animation == player.animations.idleRightCarry or
-    player.animation == player.animations.walkLeftCarry or
-    player.animation == player.animations.walkRightCarry or
+    player.animation == player.animations.runLeft or
+    player.animation == player.animations.runRight or
     player.animation == player.animations.grabRight or
     player.animation == player.animations.grabLeft then
       player.width = 90
@@ -77,11 +77,14 @@ function player.move(dt)
     if player.x > -200 then
       if love.mouse.isDown('2') then
         -- player is running left
-        player.animation = player.animations.walkLeftCarry
+        player.animation = player.animations.runLeft
         player.speed = 300
         -- check for bashing
         if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
           bashable.animation = bashable.animations.breaking
+          stext.animation = stext.animations.invisible
+          sheart.animation = sheart.animations.visible
+          tutorialQuests.Qthree = true
         end
       else
         -- player is walking left
@@ -96,11 +99,14 @@ function player.move(dt)
     if player.x < (GroundTiles[3]:getWidth() - 300) then
       if love.mouse.isDown('2') then
         -- player is running right
-        player.animation = player.animations.walkRightCarry
+        player.animation = player.animations.runRight
         player.speed = 300
         -- check for bashing
         if player.x+player.width >= bashable.x and player.x+player.width <= bashable.x+bashable.width then
           bashable.animation = bashable.animations.breaking
+          stext.animation = stext.animations.invisible
+          sheart.animation = sheart.animations.visible
+          tutorialQuests.Qthree = true
         end
       else
         -- player is walking right
@@ -162,6 +168,7 @@ function love.keyreleased(key)
         if player.x > birds.x then
           birds.animation = birds.animations.flying
           bheart.animation = bheart.animations.visible
+          tutorialQuests.Qtwo = true
         end
 
         -- decrement water meter data
@@ -179,9 +186,10 @@ function love.keyreleased(key)
         player.animation:gotoFrame(1)
         player.animation:resume()
 
-        if player.x < birds.x then
+        if player.x < birds.x and tutorialQuests.Qtwo == false then
           birds.animation = birds.animations.flying
           bheart.animation = bheart.animations.visible
+          tutorialQuests.Qtwo = true
         end
 
         -- decrement water meter data
@@ -251,7 +259,7 @@ function love.mousepressed(x, y, button, istouch)
     -- if click is within space of tuft
     if x > tuft.x and x < tuft.x + tuft.width
     and y > tuft.y and y < tuft.y + tuft.height
-    and math.abs(tuft.x - (player.x + 80)) < 100
+    and tutorialQuests.Qone == false
     then
       if player.facing == 'left' then
         -- do grab animation
@@ -265,6 +273,7 @@ function love.mousepressed(x, y, button, istouch)
         tuft.animation = tuft.animations.invisible
         text.animation = text.animations.invisible
         heart.animation = heart.animations.visible
+        tutorialQuests.Qone = true
       elseif player.facing == 'right' then
         player.animation = player.animations.grabRight
     --    player.animation:gotoFrame(1)
@@ -273,13 +282,13 @@ function love.mousepressed(x, y, button, istouch)
         tuft.animation = tuft.animations.invisible
         text.animation = text.animations.invisible
         heart.animation = heart.animations.visible
+        tutorialQuests.Qone = true
       end
     end
 
     -- quest checking for giraffe
     if x > giraffe.x and x < giraffe.x + giraffe.width
     and y > giraffe.y and y < giraffe.y + giraffe.height
-    and math.abs(giraffe.x - (player.x)) < 100
     then
       text.animation = text.animations.visible
     end
@@ -289,6 +298,12 @@ function love.mousepressed(x, y, button, istouch)
     and y > bird.y and y < bird.y + bird.height
     then
       bird.animation = bird.animations.pointLeft
+    end
+
+    if x > snake.x and x < snake.x + snake.width
+    and y > snake.y and y < snake.y + snake.height
+    then
+      stext.animation = stext.animations.visible
     end
 
     -- check for water drink
