@@ -3,19 +3,20 @@
 
 snake = {}
 sheart = {}
+stext = {}
 bashable = {}
 
 function snake.load()
     -- load giraffe sprite images
     snakeSprites = love.graphics.newImage('images/characters/SnakeSitTransparent.png')
-  --  birdText = love.graphics.newImage('images/misc/BirdText.png')
+    snakeText = love.graphics.newImage('images/misc/SnakeText.png')
     snakeHeart = love.graphics.newImage('images/misc/Heart.png')
     bashSprite = love.graphics.newImage('images/misc/TermiteTransparent.png')
 
     -- create animation grids for giraffe, text, and heart
     local bs = anim8.newGrid(100, 90, snakeSprites:getWidth(), snakeSprites:getHeight(), 0, 0, 0)
 --    local bps = anim8.newGrid(55, 55, snakeSprites:getWidth(), snakeSprites:getHeight(), 0, 0, 0)
-  --  local r = anim8.newGrid(70, 70, birdText:getWidth(), birdText:getHeight(), 0, 0, 0)
+    local r = anim8.newGrid(70, 70, snakeText:getWidth(), snakeText:getHeight(), 0, 0, 0)
     local h = anim8.newGrid(65, 70, snakeHeart:getWidth(), snakeHeart:getHeight(), 0, 0, 0)
     local t = anim8.newGrid(190, 175, bashSprite:getWidth(), bashSprite:getHeight(), 0, 0, 0)
 
@@ -31,14 +32,14 @@ function snake.load()
     snake.animation = snake.animations.idleRight
 
     -- create text data model
-    -- btext.spritesheet = birdText
-    -- btext.animations = {
-    --   visible = anim8.newAnimation(r(1,1), 1),
-    --   invisible = anim8.newAnimation(r(2,1), 1)
-    -- }
-    -- btext.x = 1100
-    -- btext.y = 50
-    -- btext.animation = btext.animations.invisible
+    stext.spritesheet = snakeText
+    stext.animations = {
+      visible = anim8.newAnimation(r(1,1), 1),
+      invisible = anim8.newAnimation(r(2,1), 1)
+    }
+    stext.x = 1900
+    stext.y = 50
+    stext.animation = stext.animations.invisible
 
     -- create heart data model
     sheart.spritesheet = snakeHeart
@@ -46,7 +47,7 @@ function snake.load()
       visible = anim8.newAnimation(h(2,1, 1,1), .5),
       invisible = anim8.newAnimation(h(3,1), 1)
     }
-    sheart.x = 2000
+    sheart.x = 2025
     sheart.y = 50
     sheart.animation = sheart.animations.invisible
 
