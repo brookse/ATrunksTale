@@ -27,7 +27,6 @@ function love.load(arg)
   boulder = love.graphics.newImage('images/misc/BoulderTransboulder.png')
 
   grass = love.graphics.newImage('images/misc/Grass.png')
-  grassTuft = love.graphics.newImage('images/misc/GrassTuft.png')
 
   -- create ground table
   GroundMap = { 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2 }
@@ -35,25 +34,10 @@ function love.load(arg)
   -- create background table
   BackgroundMap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 
-  local t = anim8.newGrid(30, 40, grassTuft:getWidth(), grassTuft:getHeight(), 0, 0, 0)
-
   player.load()
   giraffe.load()
   bird.load()
   snake.load()
-
-  tuft = {
-    spritesheet = grassTuft,
-    animations = {
-      visible = anim8.newAnimation(t(1,1), 1),
-      invisible = anim8.newAnimation(t(2,1), 1)
-    },
-    x = 375,
-    y = 315,
-    width = 30,
-    height = 40
-  }
-  tuft.animation = tuft.animations.visible
 
   -- Camera stuff
   -- camera:newLayer(-5, function()
@@ -127,6 +111,9 @@ function love.load(arg)
   mom.y = 240
   mom.animation = anim8.newAnimation(bs(1,1, 2,1, 3,1, 4,1, 5,1, 6,1, 7,1, 8,1, 9,1, 10,1, 11,1, 12,1, 13,1, 14,1), .15)
 
+  -- add hoverable items to a list to a list to make things easier
+  hoverables = { giraffe, bird, snake, tuft }
+
 end
 
 function love.update(dt)
@@ -177,6 +164,7 @@ function love.draw(dt)
   sheart.animation:draw(sheart.spritesheet, sheart.x, sheart.y)
   bashable.animation:draw(bashable.spritesheet, bashable.x, bashable.y)
   stext.animation:draw(stext.spritesheet, stext.x, stext.y)
+
   mom.animation:draw(mom.spritesheet, mom.x, mom.y)
 
   love.graphics.translate(-player.x, 0)
@@ -193,6 +181,17 @@ end
 function checkCursorPosition()
 
   x, y = camera:mousePosition()
+  -- i tried to iterate, i wish this worked
+  -- for i, hoverable in ipairs(hoverables) do
+  --   if x > hoverable.x and x < hoverable.x + hoverable.width
+  --   and y > hoverable.y and y < hoverable.y + hoverable.height
+  --   then
+  --     love.mouse.setCursor(hovercursor)
+  --   else
+  --     love.mouse.setCursor(normalcursor)
+  --   end
+  -- end
+  
   -- check hover on giraffe
   if x > giraffe.x and x < giraffe.x + giraffe.width
   and y > giraffe.y and y < giraffe.y + giraffe.height
@@ -216,8 +215,6 @@ function checkCursorPosition()
   and y > tuft.y and y < tuft.y + tuft.height
   then
     love.mouse.setCursor(hovercursor)
-
-  -- check hover on pool
   elseif x > 1050 and x < 1300
   and y > 350
   then
@@ -242,7 +239,7 @@ function checkTutorialDone()
     else
       camera.x = player.x-200
     end
-    
+
   -- otherwise continue normally
   else
     if player.x < 0 then
