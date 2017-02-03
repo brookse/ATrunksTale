@@ -131,46 +131,14 @@ end
 
 function love.update(dt)
   player.update(dt)
+  giraffe.update(dt)
+  snake.update(dt)
+  bird.update(dt)
 
-  bird.animation:update(dt)
-  birds.animation:update(dt)
-  giraffe.animation:update(dt)
-  heart.animation:update(dt)
-  bheart.animation:update(dt)
-  btext.animation:update(dt)
-  snake.animation:update(dt)
-  sheart.animation:update(dt)
-  stext.animation:update(dt)
-  bashable.animation:update(dt)
   mom.animation:update(dt)
 
   checkCursorPosition()
-
-  -- player completed all quests and is beyond the bashable object
-  if tutorialQuests.Qone == true
-  and tutorialQuests.Qtwo == true
-  and tutorialQuests.Qthree == true
-  and player.x > bashable.x + bashable.width/2
-  then
-    if player.x < 0 then
-      camera.x = -200
-    elseif player.x > GroundTiles[3]:getWidth() then
-    --  camera.x = player.x-200
-      camera.x = GroundTiles[3]:getWidth() - 200
-    else
-      camera.x = player.x-200
-    end
-  -- otherwise continue normally
-  else
-    if player.x < 0 then
-      camera.x = -200
-    elseif player.x > GroundTiles[3]:getWidth() - 800 then
-      camera.x = GroundTiles[3]:getWidth() - 1000
-    else
-      camera.x = player.x-200
-    end
-  end
-
+  checkTutorialDone()
 --  myCamera1:update(dt, player.x)
 end
 
@@ -256,5 +224,33 @@ function checkCursorPosition()
     love.mouse.setCursor(hovercursor)
   else
     love.mouse.setCursor(normalcursor)
+  end
+end
+
+function checkTutorialDone()
+  -- player completed all quests and is beyond the bashable object
+  if tutorialQuests.Qone == true
+  and tutorialQuests.Qtwo == true
+  and tutorialQuests.Qthree == true
+  and player.x > bashable.x + bashable.width/2
+  then
+    if player.x < 0 then
+      camera.x = -200
+    elseif player.x > GroundTiles[3]:getWidth() then
+    --  camera.x = player.x-200
+      camera.x = GroundTiles[3]:getWidth() - 200
+    else
+      camera.x = player.x-200
+    end
+    
+  -- otherwise continue normally
+  else
+    if player.x < 0 then
+      camera.x = -200
+    elseif player.x > GroundTiles[3]:getWidth() - 800 then
+      camera.x = GroundTiles[3]:getWidth() - 1000
+    else
+      camera.x = player.x-200
+    end
   end
 end

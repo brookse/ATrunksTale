@@ -64,3 +64,10 @@ function snake.load()
     bashable.animation = bashable.animations.standing
 
 end
+
+function snake.update(dt)
+  snake.animation:update(dt)
+  sheart.animation:update(dt)
+  stext.animation:update(dt)
+  bashable.animation:update(dt)
+end

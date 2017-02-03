@@ -50,3 +50,8 @@ function giraffe.load()
     heart.animation = heart.animations.invisible
 
 end
+
+function giraffe.update(dt)
+  giraffe.animation:update(dt)
+  heart.animation:update(dt)
+end

@@ -67,3 +67,10 @@ function bird.load()
     birds.animation = birds.animations.sitting
 
 end
+
+function bird.update(dt)
+  bird.animation:update(dt)
+  birds.animation:update(dt)
+  bheart.animation:update(dt)
+  btext.animation:update(dt)
+end
