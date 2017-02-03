@@ -1,6 +1,6 @@
 debug = true
 anim8 = require('anim8')
---require 'ui'
+require 'ui'
 require 'player'
 require 'giraffe'
 require 'bird'
@@ -38,6 +38,7 @@ function love.load(arg)
   giraffe.load()
   bird.load()
   snake.load()
+  ui.load()
 
   -- Camera stuff
   -- camera:newLayer(-5, function()
@@ -65,36 +66,6 @@ function love.load(arg)
   --           end)
 
   -- UI
-  backgroundGUI = love.graphics.newImage('images/ui/GUI4.png')
-
-  waterMeterUI = {}
-  waterbar = love.graphics.newImage('images/ui/WaterBarLight.png')
-
-  local wm = anim8.newGrid(270, 45, waterbar:getWidth(), waterbar:getHeight(), 0, 0, 0)
-
-  waterMeterUI.waterLevel = 0
-  waterMeterUI.spritesheet = waterbar
-  waterMeterUI.animations = {
-    ten = anim8.newAnimation(wm(1,1), 1),
-    nine = anim8.newAnimation(wm(1,2), 1),
-    eight = anim8.newAnimation(wm(1,3), 1),
-    seven = anim8.newAnimation(wm(1,4), 1),
-    six = anim8.newAnimation(wm(1,5), 1),
-    five = anim8.newAnimation(wm(1,6), 1),
-    four = anim8.newAnimation(wm(1,7), 1),
-    three = anim8.newAnimation(wm(1,8), 1),
-    two = anim8.newAnimation(wm(1,9), 1),
-    one = anim8.newAnimation(wm(1,10), 1),
-    zero = anim8.newAnimation(wm(1,11), 1)
-  }
-  waterMeterUI.x = 500
-  waterMeterUI.y = 440
-  waterMeterUI.animation = waterMeterUI.animations.zero
-
-  -- cursors
-  normalcursor = love.mouse.newCursor("images/ui/cursors/normalcursor.png")
-  hovercursor = love.mouse.newCursor("images/ui/cursors/hovercursor.png")
-  love.mouse.setCursor(normalcursor)
 
   -- quest checks
   tutorialQuests = {
@@ -191,7 +162,7 @@ function checkCursorPosition()
   --     love.mouse.setCursor(normalcursor)
   --   end
   -- end
-  
+
   -- check hover on giraffe
   if x > giraffe.x and x < giraffe.x + giraffe.width
   and y > giraffe.y and y < giraffe.y + giraffe.height

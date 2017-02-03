@@ -2,7 +2,7 @@
 -- All the implementation for the player, the baby elephant
 require 'giraffe'
 require 'snake'
---require 'ui'
+require 'ui'
 
 player = {}
 
